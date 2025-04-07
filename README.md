@@ -1,4 +1,4 @@
-# Simple Smart Contract Example – Lock
+# Assignment: Combinatorial auction with value density heuristic
 
 Example usage
 ```console
