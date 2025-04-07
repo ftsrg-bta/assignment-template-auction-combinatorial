@@ -132,6 +132,7 @@ interface ICombinatorialAuction {
      * @param revealPhaseDurationSeconds Duration of the reveal phase in seconds
      * @dev Can only be called once
      * @dev After this function is called, the contract is ready to receive bid commitments
+     * @dev Emits AuctionStarted
      */
     function initialize(
         AuctionItem[] calldata items,
@@ -147,6 +148,7 @@ interface ICombinatorialAuction {
      * @dev The deposited amount cannot be zero
      * @dev The deposited amount must be equal to or exceed the bid amount
      * @dev Each address can only place one bid
+     * @dev Emits BidCommitted
      */
     function commitBid(bytes32 commitmentHash) external payable;
 
@@ -161,6 +163,7 @@ interface ICombinatorialAuction {
      * @dev The previously deposited amount must be equal to or exceed the bid amount
      * @dev The bid amount must exceed the sum of minimum bid amounts for the items included in the bundle
      * @dev The keccak256 hash formed from (message sender address, itemIds, bidAmount, nonce) must match the previously submitted commitment
+     * @dev Emits BidRevealed
      */
     function revealBid(
         uint256[] calldata itemIds,
@@ -175,6 +178,7 @@ interface ICombinatorialAuction {
      * @dev A bidder can only withraw their own bid
      * @dev The bidder is refunded immediately and cannot make any more bids in this auction
      * @dev Withdrawn bids are ignored for the rest of the auction protocol
+     * @dev Emits BidWithdrawn
      */
     function withdrawBid() external;
 
@@ -185,6 +189,7 @@ interface ICombinatorialAuction {
      * @dev Can only be called after the reveal phase ends
      * @dev Can only be called once
      * @dev This function only determines winners and does not transfer any funds
+     * @dev Emits AuctionEnded
      */
     function solveWinnerDetermination()
         external
@@ -194,7 +199,7 @@ interface ICombinatorialAuction {
      * @notice Refund the deposit of a bidder whose bid did not win
      * @param bidder Address whose deposit
      * @dev Can only be called after the auction was solved and the winners were determined
-     * @dev Only non-winning, revealed, and non-withdrawn bids can be refunded
+     * @dev Only non-winning and non-withdrawn bids can be refunded
      */
     function refundLosingBid(address bidder) external;
 
