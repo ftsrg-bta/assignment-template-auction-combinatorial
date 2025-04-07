@@ -8,7 +8,8 @@ pragma solidity ^0.8.x;
  * @dev Please do not modify this interface!
  */
 interface ICombinatorialAuction {
-    /** @notice Represents information about the auction
+    /**
+     * @notice Represents information about the auction
      * @param initialized Whether the auction has been initialized
      * @param commitmentPhaseEndTime Block timestamp when the commitment phase ends (exclusive)
      * @param revealPhaseEndTime Block timestamp when the reveal phase ends (exclusive)
