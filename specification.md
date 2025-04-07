@@ -87,6 +87,9 @@ Concretely, in this assignment:
   * Except the bidder address as that can be determined from `msg.sender`
   * Bids can only be revealed in the reveal phase
   * You can only reveal your own bids
+  * Only committed and non-withdrawn bids can be revealed 
+  * The bid amount revealed must be covered by the deposit sent in the commitment phase; otherwise, the function reverts
+  * The sum of the minimum bids of the items included must be less than or equal to the bid value
 * **There can be only one bid per address**
 
 #### 3. Withdrawal of Bids
@@ -154,6 +157,10 @@ The remaining bids are considered losing bids (this includes non-revealed bids) 
 #### 8. Technical Details
 
 **For technical reasons, the auction must not be intialized in a constructor but using the `intialize` function.**
+
+#### 9. Other
+
+* **There must be at least one item in each bid’s bundle**
 
 
 ## Assignment Task
