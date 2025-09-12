@@ -177,4 +177,4 @@ The remaining bids are considered losing bids (this includes non-revealed bids) 
 
 | Year | Owner                                                                          |
 |:----:|:------------------------------------------------------------------------------:|
-| 2025 | Bertalan Zoltán Péter `<bpeter@vik.bme.hu>` [@bzp99](https://github.com/bzp99) |
+| 2025 | Bertalan Zoltán Péter `<bpeter@edu.bme.hu>` [@bzp99](https://github.com/bzp99) |
