@@ -31,6 +31,7 @@ interface ICombinatorialAuction {
      * @param id Unique identifier for the item
      * @param description Arbitrary textual description for the item
      * @param minBid Minimum bid required for this item individually
+     * @param maxBid Maximum bid allowed for this item individually (must be greater than or equal to minBid)
      * @param owner Current owner of this item (the contract's address or a bidder's address if they won the item)
      * @dev In a full implementation, this struct would include the details of an token such as an NFT; now we just track the owner of an abstract item
      */
@@ -38,6 +39,7 @@ interface ICombinatorialAuction {
         uint256 id;
         string description;
         uint256 minBid;
+        uint256 maxBid;
         address owner;
     }
 
@@ -148,6 +150,7 @@ interface ICombinatorialAuction {
      * @dev All of the items in the bundle must exist (they have been passe to initialize)
      * @dev The previously deposited amount must be equal to or exceed the bid amount
      * @dev The bid amount must be equal to or exceed the sum of minimum bid amounts for the items included in the bundle
+     * @dev The bid amount must be equal to or less than the maximum bid amount of all items (individually) in the bundle
      * @dev The commitment hash formed as keccak256(abi.encode(message sender address, itemIds, bidAmount, nonce)) must match the previously submitted commitment
      * @dev Emits BidRevealed
      */
