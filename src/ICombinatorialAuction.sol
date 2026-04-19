@@ -111,9 +111,9 @@ interface ICombinatorialAuction {
 
     /**
      * @notice Initialize an auction
-     * @param items Array of items for auction
-     * @param commitmentPhaseDurationSeconds Duration of the commitment phase in seconds
-     * @param revealPhaseDurationSeconds Duration of the reveal phase in seconds
+     * @param items Array of items for auction (must not be empty and only contain unique items whose owner is set to the address of this contract)
+     * @param commitmentPhaseDurationSeconds Duration of the commitment phase in seconds (positive integer)
+     * @param revealPhaseDurationSeconds Duration of the reveal phase in seconds (positive integer)
      * @dev Can only be called once
      * @dev After this function is called, the contract is ready to receive bid commitments
      * @dev Emits AuctionStarted
@@ -126,7 +126,7 @@ interface ICombinatorialAuction {
 
     /**
      * @notice Commit a sealed bid
-     * @param commitmentHash Keccak256 hash of (bidder address, item IDs, bid amount, nonce)
+     * @param commitmentHash Keccak256 hash formed as keccak256(abi.encode(bidder address, item IDs, bid amount, nonce))
      * @dev Can only be called in the commitment phase
      * @dev There must be at least one item included in the bundle
      * @dev The deposited amount cannot be zero
@@ -144,9 +144,11 @@ interface ICombinatorialAuction {
      * @dev Can only be called in the reveal phase
      * @dev Only committed and non-withdrawn bids can be revealed
      * @dev There must be at least one item included in the bundle
+     * @dev The items in the bundle must be unique (ie one item cannot be included more than once)
+     * @dev All of the items in the bundle must exist (they have been passe to initialize)
      * @dev The previously deposited amount must be equal to or exceed the bid amount
-     * @dev The bid amount must exceed the sum of minimum bid amounts for the items included in the bundle
-     * @dev The keccak256 hash formed from (message sender address, itemIds, bidAmount, nonce) must match the previously submitted commitment
+     * @dev The bid amount must be equal to or exceed the sum of minimum bid amounts for the items included in the bundle
+     * @dev The commitment hash formed as keccak256(abi.encode(message sender address, itemIds, bidAmount, nonce)) must match the previously submitted commitment
      * @dev Emits BidRevealed
      */
     function revealBid(uint256[] calldata itemIds, uint256 bidAmount, uint256 nonce) external;
@@ -169,6 +171,8 @@ interface ICombinatorialAuction {
      * @dev Can only be called after the reveal phase ends
      * @dev Can only be called once
      * @dev This function only determines winners and does not transfer any funds
+     * @dev The calculation must use integer division (truncating toward zero) for calculating value densities
+     * @dev Note the tie breaking rules in the spec for two bids having the same valude density
      * @dev Emits AuctionEnded
      */
     function solveWinnerDetermination() external returns (address[] memory winners, uint256 totalRevenue);
@@ -178,6 +182,7 @@ interface ICombinatorialAuction {
      * @param bidder Address whose deposit
      * @dev Can only be called after the auction was solved and the winners were determined
      * @dev Only non-winning and non-withdrawn bids can be refunded
+     * @dev Must revert if there is nothing to refund for the given bidder
      */
     function refundLosingBid(address bidder) external;
 

@@ -9,8 +9,6 @@ import "./ICombinatorialAuction.sol";
  * @notice Implementation a sealed-bid combinatorial auction with a value density heuristic
  */
 contract CombinatorialAuction is ICombinatorialAuction {
-    bool public dummy = true; // TODO Remove this!
-
     function initialize(
         AuctionItem[] calldata _items,
         uint256 _commitmentPhaseDurationSeconds,
@@ -28,7 +26,7 @@ contract CombinatorialAuction is ICombinatorialAuction {
     function revealBid(uint256[] calldata _itemIds, uint256 _bidAmount, uint256 _nonce) external override {
         // TODO Your implementation ...
         // For hasing, use
-        // keccak256(abi.encodePacked(_itemIds, _bidAmount, ...)
+        // keccak256(abi.encode(...))
         revert("Missing implementation");
     }
 
