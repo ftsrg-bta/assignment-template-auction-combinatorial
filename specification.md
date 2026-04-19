@@ -1,13 +1,7 @@
 # Combinatorial Auction with Value Density Heuristic – Specification
 
 > [!IMPORTANT]
-> Your assignment is only complete if you have all three:
->
-> 1. Implementation of the specification below (a skeleton has been prepared for you in [`contracts/`](contracts/)
-> 2. Unit tests for the specification below (in [`tests/`](tests/), using Hardhat)
-> 3. Documentation of your solution in [`README.md`](README.md)
->
-> More information: https://github.com/ftsrg-bta/assignments/wiki
+> **Please make sure to review the authoritative assignment requirements at the [assignments wiki](https://github.com/ftsrg-bta/assignments/wiki).**
 
 
 ## Overview
@@ -44,7 +38,10 @@ Its steps are the folowing:
 There are a couple more aspects to the auction contract you must implement that are specified below.
 
 > [!WARNING]
-> Besides the detailed description below, make sure to read the NatSpec documentation comments in [`ICombinatorialAuction.sol`](contracts/ICombinatorialAuction.sol).
+> Besides the detailed description below, make sure to read the NatSpec documentation comments in [`ICombinatorialAuction.sol`](src/ICombinatorialAuction.sol).
+
+> [!NOTE]
+> Unless stated otherwise, failing any requirement must result in the transaction **reverting.**
 
 #### 1. Auction Items
 
@@ -54,10 +51,17 @@ Instead, we represent auction items by abstract entities that have the following
 
 * `id`: a unique identifier of the item (`uint256`)
 * `description`: an arbitrary textual description of the item meant for humans
-* `minBid`: the minimum bid value for the item individually (in a bid for an item bundle, the bid value must exceed the sum of the `minBid`s of the included items)
-* `owner`: represents the current owner of this abstract item (an Ethereum account (`address`) – **if currently under auction and not allocated, this should be the contract itself!**)
+* `minBid`: the minimum bid value for the item individually (in a bid for an item bundle, the bid value must be at least the sum of the `minBid`s of the included items or greater)
+* `maxBid`: the maximum bid value for the item individually (in a bid for an item bundle, the bid value must not exceed the `maxBids` of any included item)
+* `owner`: represents the current owner of this abstract item (an Ethereum account (`address`) – **if currently under auction and not allocated, this must be the contract itself!**)
 
 **The items for the auction are given in the `initialize` function of the contract, as an array of `AuctionItem` structs.**
+
+* There must be at least one item in the auction.
+* Initialization must revert if the passed items array includes items with duplicate `id`s.
+* It is an error if an item’s `maxBid` is less than its `minBid` but the two values may be equal.
+* The intial `owner` of all items passed to `initialize` must be the set to the contract’s address.
+
 
 #### 2. Sealed-Bid Auction via Hash Commitments
 
@@ -68,7 +72,7 @@ This can be slightly tricky to achieve in public blockchain environments (such a
 Fortunately, a design pattern known as **hash commitment** has emerged that solves this problem and is already widely used.
 In a nutshell, participants can submit bid **commitments** for a limited time – these _commitments_ are simply `keccak256` hashes of their bid data.
 Nobody can tell what items the bid is about or what the bid value is based on its commitment.
-(You may be wondering how they pay: they deposit some funds together with their commitment that can exceed the bid amount and are alter refunded if needed – this way, the bid amount remains secret in the first phase.)
+(You may be wondering how they pay: they deposit some funds together with their commitment that can exceed the bid amount and are after refunded if needed – this way, the bid amount remains secret in the first phase.)
 Then, once the **commitment phase** has ended, participants are required to **reveal** their bids, meaning they send a transaction with the original bid data they used to calculate the hashes in the commitment phase (the hash preimage).
 It is indeed a _commitment_ because the smart contract can check whether the hash of the revealed data matches the previously submitted hash value, so bidders are forced to submit the same data they used in the commitment phase, otherwise their bid will not be accepted.
 After a predetermined **reveal phase,** winners can be determined.
@@ -81,8 +85,11 @@ Concretely, in this assignment:
   * The list of item IDs included in the bid bundle
   * The bid amount
   * A nonce value chosen by the bidder _(this is against brute-force attacks)_
+  * You must use `abi.encode` to encode the parameters to `keccak256` in the order stated above.
   * Bids can only be committed in the commitment phase
   * You can only commit to your own bids
+  * There must not be duplicate items in the bid bundle.
+  * There must not be any ‘unknown’ item in the bid bundle (an item that has need been given to `initialize`).
 * **Bids are revealed using the `revealBid` function,** which takes as parameters the same data that was used to create the commitment hash
   * Except the bidder address as that can be determined from `msg.sender`
   * Bids can only be revealed in the reveal phase
@@ -90,6 +97,7 @@ Concretely, in this assignment:
   * Only committed and non-withdrawn bids can be revealed 
   * The bid amount revealed must be covered by the deposit sent in the commitment phase; otherwise, the function reverts
   * The sum of the minimum bids of the items included must be less than or equal to the bid value
+  * The bid amount must not exceed the maximum bid of any item included in the bundle
 * **There can be only one bid per address**
 
 #### 3. Withdrawal of Bids
@@ -120,6 +128,9 @@ After the winners have been determined, losing bidders can refund their bids (se
 * Committed, but not revealed bids cannot be considered
 * Withdrawn bids also cannot be considered
 * No eth transfer occurs in this function
+* In the formula to determine value densities ($d = v / |S|$), `/` means _integer division_; ie truncating the result toward zero
+* When allocating items based on the value density order, if two bids happen to have equal value density, the bid with the greater total value $v$ should be chosen first.
+  * If even the total values of these bids are equal, then use the bidder address to break the tie: process the bid with the _lower_ address first. Addresses are guaranteed to be unique since we only accept a single bid from a given address.
 
 #### 5. Refunding losing bids
 
@@ -131,8 +142,10 @@ The remaining bids are considered losing bids (this includes non-revealed bids) 
 * Curiously, anybody can initiate a refund for anybody’s address
 * However, a single address can only be refunded once
 * All non-winning bids can be refunded this way, including non-revealed bids
+* Withdrawn bids cannot be refunded
 * Refunding means transferring all deposited eth back to the bidder
 * Losing bids can only be refunded after the auction has ended and winners were determined
+* Refunding must revert if there is nothing to refund
 
 #### 6. Additional Operations
 
@@ -163,18 +176,9 @@ The remaining bids are considered losing bids (this includes non-revealed bids) 
 * **There must be at least one item in each bid’s bundle**
 
 
-## Assignment Task
-
-> [!IMPORTANT]
-> Your task is to implement the [`ICombinatorialAuction`](contracts/ICombinatorialAuction.sol) interface according to the specification.
-> A skeleton file has been prepared for you in [`CombinatorialAuction.sol`](contracts/CombinatorialAuction.sol) interface according to the specification.
->
-> Additionally, do not forget to write unit tests for your implementation as well as document your work.
-> More information: https://github.com/ftsrg-bta/assignments/wiki
-
-
 ## Assignment Owner
 
 | Year | Owner                                                                          |
 |:----:|:------------------------------------------------------------------------------:|
+| 2026 | Bertalan Zoltán Péter `<bpeter@edu.bme.hu>` [@bzp99](https://github.com/bzp99) |
 | 2025 | Bertalan Zoltán Péter `<bpeter@edu.bme.hu>` [@bzp99](https://github.com/bzp99) |

@@ -1,28 +1,31 @@
-# Ethereum/Solidity assignment: Combinatorial Auction with Value Density Heuristic
+# Solidity/Foundry assignment: Combinatorial Auction (with Value Density Heuristic)
 
-> [!TIP]
-> This is a standard [Hardhat](https://hardhat.org) project – read the documentation on how to use it.
->
-> Get started:
-> ```console
-> $ pnpm install
-> $ pnpm exec hardhat help
-> $ pnpm exec hardhat compile
-> $ pnpm exec hardhat test
-> ```
->
-> _(You can use your preferred package manager such as `npm` or `yarn` instead of `pnpm`)_
+[![Smart Contract CI](https://github.com/ftsrg-bta/assignment-template-auction-combinatorial/actions/workflows/test.yml/badge.svg)](https://github.com/ftsrg-bta/assignment-template-auction-combinatorial/actions/workflows/test.yml)
+
+> [!IMPORTANT]
+> The canonical description of the assignment and its acceptance criteria are maintained at the **[ftsrg-bta assignments wiki](https://github.com/ftsrg-bta/assignments/wiki)**.
+> Be sure to consult it before finalizing your submission.
+
+> [!NOTE]
+> The implementation language for this assignment is **Solidity** (using the [Foundry](https://book.getfoundry.sh/) toolchain)
 
 
 ## Specification
 
-You can find the assignment specification in [`specification.md`](specification.md).
+> [!IMPORTANT]
+> **You can find the assignment specification in [`specification.md`](specification.md).**
+
+
+## Repository structure
+
+* Smart contract implementation: `src/` directory
+* Deployment scripts: `script/` directory
+* Tests: `test/` directory
 
 
 ## Documentation
 
-> [!NOTE]
-> You can break down the documentation into multiple files if you wish.
-> In that case, put a link to the top-level/index file here, in the repository’s README, and place your docs in a [`docs/`](docs/) subdirectory.
+**Place your assignment documentation in the [`docs/`](docs/) subdirectory.**
+Put a link to the top-level/index file here once you have one.
 
-<!-- TODO Your assignment documentation goes here -->
+For information about the Foundry toolchain and how to build, test, and deploy contracts, see [`docs/foundry.md`](docs/foundry.md).
